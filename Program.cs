@@ -118,12 +118,15 @@ class Program
     }
     static void WriteEntry(string file)
     {
+        Console.ForegroundColor = ConsoleColor.Green;
+
         Console.WriteLine("\nWrite your thoughts (Press Enter to save):");
         string content = Console.ReadLine() ?? "";
         string entry = $"[{DateTime.Now:dd/MM/yyyy HH:mm}] - {content}";
         File.AppendAllLines(file, new List<string> { entry });
-        Console.WriteLine("✅ Saved! Press any key...");
+        Console.WriteLine("\n✅ Your thoughts have been locked in the diary!");
         Console.ReadKey();
+        Console.ResetColor();
     }
 
     static void ReadEntries(string file)
@@ -197,8 +200,8 @@ class Program
 
     static void ShowStatistics(string file)
     {
-        Console.Clear();
-        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.BackgroundColor = ConsoleColor.DarkBlue;
+        Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine("=== 📊 DIARY STATISTICS ===");
         Console.ResetColor();
 
