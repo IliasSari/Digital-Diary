@@ -138,7 +138,8 @@ class Program
             }
         }
         string entry = $"[{DateTime.Now:dd/MM/yyyy HH:mm}] | Mood: {mood} | {content}";
-        File.AppendAllLines(file, new List<string> { entry });
+        string encryptedEntry = Encrypt(entry, 5); 
+        File.AppendAllLines(file, new List<string> { encryptedEntry });
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("\nSaved! Your mood has been recorded. Press any key...");
         Console.ResetColor();
@@ -147,16 +148,23 @@ class Program
 
     static void ReadEntries(string file)
     {
-        Console.WriteLine("\n--- YOUR DIARY HISTORY ---");
+        Console.Clear();
+        Console.WriteLine("--- 📓 YOUR HISTORY (Decrypted) ---\n");
+
         if (File.Exists(file))
         {
-            Console.WriteLine(File.ReadAllText(file));
+            string[] encryptedLines = File.ReadAllLines(file);
+            foreach (var line in encryptedLines)
+            {
+                string decryptedLine = Decrypt(line, 5);
+                PrintWithMoodColor(decryptedLine);
+            }
         }
-        else
-        {
-            Console.WriteLine("No entries found yet.");
+        else 
+        { 
+            Console.WriteLine("No entries found."); 
         }
-        Console.WriteLine("\nPress any key...");
+        Console.WriteLine("\nPress any key to return...");
         Console.ReadKey();
     }
 
@@ -266,5 +274,34 @@ class Program
         }
         Console.WriteLine("\nPress any key to return...");
         Console.ReadKey();
+    }
+    static string Encrypt(string text, int key)
+    {
+        char[] buffer = text.ToCharArray();
+        for (int i = 0; i < buffer.Length; i++)
+        {
+            buffer[i] = (char)(buffer[i] + key);
+        }
+        return new string(buffer);
+    }
+
+    static string Decrypt(string text, int key)
+    {
+        char[] buffer = text.ToCharArray();
+        for (int i = 0; i < buffer.Length; i++)
+        {
+            buffer[i] = (char)(buffer[i] - key);
+        }
+        return new string(buffer);
+    }
+    static void PrintWithMoodColor(string line)
+    {
+        if (line.Contains("Mood: 5")) Console.ForegroundColor = ConsoleColor.Green;
+        else if (line.Contains("Mood: 4")) Console.ForegroundColor = ConsoleColor.Cyan;
+        else if (line.Contains("Mood: 1") || line.Contains("Mood: 2")) Console.ForegroundColor = ConsoleColor.Red;
+        else Console.ForegroundColor = ConsoleColor.White;
+
+        Console.WriteLine(line);
+        Console.ResetColor();
     }
 }
