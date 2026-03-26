@@ -118,15 +118,31 @@ class Program
     }
     static void WriteEntry(string file)
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-
-        Console.WriteLine("\nWrite your thoughts (Press Enter to save):");
-        string content = Console.ReadLine() ?? "";
-        string entry = $"[{DateTime.Now:dd/MM/yyyy HH:mm}] - {content}";
-        File.AppendAllLines(file, new List<string> { entry });
-        Console.WriteLine("\n✅ Your thoughts have been locked in the diary!");
-        Console.ReadKey();
+        Console.Clear();
+        Console.ForegroundColor = ConsoleColor.Cyan;
+        Console.WriteLine("--- New Diary Entry ---");
         Console.ResetColor();
+
+        Console.WriteLine("What's on your mind?");
+        string content = Console.ReadLine() ?? "";
+
+        int mood = 0;
+        while (mood < 1 || mood > 5)
+        {
+            Console.Write("Rate your mood (1: Terrible, 5: Amazing): ");
+            if (!int.TryParse(Console.ReadLine(), out mood) || mood < 1 || mood > 5)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Please enter a number between 1 and 5.");
+                Console.ResetColor();
+            }
+        }
+        string entry = $"[{DateTime.Now:dd/MM/yyyy HH:mm}] | Mood: {mood} | {content}";
+        File.AppendAllLines(file, new List<string> { entry });
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.WriteLine("\nSaved! Your mood has been recorded. Press any key...");
+        Console.ResetColor();
+        Console.ReadKey();
     }
 
     static void ReadEntries(string file)
@@ -207,27 +223,36 @@ class Program
 
         if (!File.Exists(file))
         {
-            Console.WriteLine("No data available yet.");
-        }
-        else
-        {
-            string[] lines = File.ReadAllLines(file);
-            int totalEntries = lines.Length;
-            int totalWords = 0;
+            var lines = File.ReadAllLines(file);
+            double totalMood = 0;
+            int moodCount = 0;
 
             foreach (var line in lines)
             {
-                string[] words = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                totalWords += words.Length;
+                if (line.Contains("Mood: "))
+                {
+
+                    int index = line.IndexOf("Mood: ") + 6;
+                    if (int.TryParse(line.Substring(index, 1), out int val))
+                    {
+                        totalMood += val;
+                        moodCount++;
+                    }
+                }
             }
 
-            Console.WriteLine($"- Total entries: {totalEntries}");
-            Console.WriteLine($"- Total words written: {totalWords}");
-
-            if (totalEntries > 0)
+            Console.WriteLine($"Total Entries: {lines.Length}");
+            if (moodCount > 0)
             {
-                Console.WriteLine($"- Average words per entry: {totalWords / totalEntries}");
-                Console.WriteLine($"- Last entry date: {lines[totalEntries - 1].Substring(0, 18)}");
+                double average = totalMood / moodCount;
+                Console.Write("Average Mood: ");
+        
+                if (average >= 4) Console.ForegroundColor = ConsoleColor.Green;
+                else if (average >= 2.5) Console.ForegroundColor = ConsoleColor.Yellow;
+                else Console.ForegroundColor = ConsoleColor.Red;
+        
+                Console.WriteLine($"{average:F1} / 5.0");
+                Console.ResetColor();
             }
         }
         Console.WriteLine("\nPress any key to return...");
