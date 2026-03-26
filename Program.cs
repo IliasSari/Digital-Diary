@@ -216,22 +216,25 @@ class Program
 
     static void ShowStatistics(string file)
     {
+        Console.Clear();
         Console.BackgroundColor = ConsoleColor.DarkBlue;
         Console.ForegroundColor = ConsoleColor.White;
         Console.WriteLine("=== 📊 DIARY STATISTICS ===");
         Console.ResetColor();
 
-        if (!File.Exists(file))
+        if (File.Exists(file))
         {
             var lines = File.ReadAllLines(file);
             double totalMood = 0;
             int moodCount = 0;
+            int totalWords = 0;
 
             foreach (var line in lines)
             {
+                totalWords += line.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+
                 if (line.Contains("Mood: "))
                 {
-
                     int index = line.IndexOf("Mood: ") + 6;
                     if (int.TryParse(line.Substring(index, 1), out int val))
                     {
@@ -241,19 +244,25 @@ class Program
                 }
             }
 
-            Console.WriteLine($"Total Entries: {lines.Length}");
+            Console.WriteLine($"\nTotal Entries: {lines.Length}");
+            Console.WriteLine($"Total Words Written: {totalWords}");
+
             if (moodCount > 0)
             {
                 double average = totalMood / moodCount;
-                Console.Write("Average Mood: ");
-        
+                Console.Write("Average Mood Score: ");
+    
                 if (average >= 4) Console.ForegroundColor = ConsoleColor.Green;
                 else if (average >= 2.5) Console.ForegroundColor = ConsoleColor.Yellow;
                 else Console.ForegroundColor = ConsoleColor.Red;
-        
+    
                 Console.WriteLine($"{average:F1} / 5.0");
                 Console.ResetColor();
             }
+        }
+        else
+        {
+            Console.WriteLine("\nNo diary file found. Create your first entry!");
         }
         Console.WriteLine("\nPress any key to return...");
         Console.ReadKey();
