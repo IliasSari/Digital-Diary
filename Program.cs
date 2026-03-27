@@ -170,55 +170,64 @@ class Program
 
     static void DeleteEntry(string file)
     {
-        if (!File.Exists(file))
+        Console.Clear();
+        Console.WriteLine("--- 🗑️ DELETE AN ENTRY ---");
+
+        if (!File.Exists(file)) { Console.WriteLine("No entries found."); return; }
+
+        List<string> encryptedLines = File.ReadAllLines(file).ToList();
+    
+        if (encryptedLines.Count == 0) { Console.WriteLine("Diary is empty."); return; }
+
+        for (int i = 0; i < encryptedLines.Count; i++)
         {
-            Console.WriteLine("No file found.");
-            return;
+            string decLine = Decrypt(encryptedLines[i], 5);
+            Console.Write($"{i + 1}. ");
+            PrintWithMoodColor(decLine); 
         }
 
-        List<string> lines = File.ReadAllLines(file).ToList();
-        if (lines.Count == 0)
+        Console.Write("\nGive entry number to delete (0 to cancel): ");
+        if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= encryptedLines.Count)
         {
-            Console.WriteLine("Diary is empty.");
-        }
-        else
-        {
-            for (int i = 0; i < lines.Count; i++)
+            Console.Write($"Are you sure you want to delete entry #{index}? (y/n): ");
+            if ((Console.ReadLine() ?? "").ToLower() == "y")
             {
-                Console.WriteLine($"{i + 1}. {lines[i]}");
-            }
-
-            Console.Write("\nGive entry number to delete (0 to cancel): ");
-            if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= lines.Count)
-            {
-                Console.Write($"Are you sure? (y/n): ");
-                if ((Console.ReadLine() ?? "").ToLower() == "y")
-                {
-                    lines.RemoveAt(index - 1);
-                    File.WriteAllLines(file, lines);
-                    Console.WriteLine("✅ Deleted.");
-                }
+                encryptedLines.RemoveAt(index - 1); 
+                File.WriteAllLines(file, encryptedLines); 
+                Console.WriteLine("✅ Entry deleted successfully.");
             }
         }
         Console.ReadKey();
     }
 
     static void SearchEntries(string file)
-    {
-        Console.Write("\nEnter keyword: ");
+        {
+        Console.Clear();
+        Console.WriteLine("--- 🔍 SEARCH ENTRIES ---");
+        Console.Write("Enter keyword to find: ");
         string keyword = (Console.ReadLine() ?? "").ToLower();
+
         if (File.Exists(file))
         {
-            var results = File.ReadAllLines(file).Where(l => l.ToLower().Contains(keyword));
-            if (results.Any())
+            string[] encryptedLines = File.ReadAllLines(file);
+            bool found = false;
+
+            foreach (var encLine in encryptedLines)
             {
-                foreach (var line in results) Console.WriteLine(line);
+                string decLine = Decrypt(encLine, 5);
+            
+                if (decLine.ToLower().Contains(keyword))
+                {
+                    PrintWithMoodColor(decLine);
+                    found = true;
+                }
             }
-            else
-            {
-                Console.WriteLine("No matches found.");
-            }
+
+            if (!found) Console.WriteLine("❌ No matches found for your keyword.");
         }
+        else { Console.WriteLine("Diary file not found."); }
+    
+        Console.WriteLine("\nPress any key...");
         Console.ReadKey();
     }
 
@@ -237,8 +246,8 @@ class Program
             int moodCount = 0;
             int totalWords = 0;
 
-            foreach (var line in lines)
-            {
+            foreach (var encLine in lines)
+            {   string line = Decrypt(encLine, 5);
                 totalWords += line.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
 
                 if (line.Contains("Mood: "))
