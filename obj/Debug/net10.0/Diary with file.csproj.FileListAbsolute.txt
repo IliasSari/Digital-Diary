@@ -1,0 +1,15 @@
+/home/ilias/Desktop/c#/Digital-Diary-main/bin/Debug/net10.0/Diary with file
+/home/ilias/Desktop/c#/Digital-Diary-main/bin/Debug/net10.0/Diary with file.deps.json
+/home/ilias/Desktop/c#/Digital-Diary-main/bin/Debug/net10.0/Diary with file.runtimeconfig.json
+/home/ilias/Desktop/c#/Digital-Diary-main/bin/Debug/net10.0/Diary with file.dll
+/home/ilias/Desktop/c#/Digital-Diary-main/bin/Debug/net10.0/Diary with file.pdb
+/home/ilias/Desktop/c#/Digital-Diary-main/obj/Debug/net10.0/Diary with file.GeneratedMSBuildEditorConfig.editorconfig
+/home/ilias/Desktop/c#/Digital-Diary-main/obj/Debug/net10.0/Diary with file.AssemblyInfoInputs.cache
+/home/ilias/Desktop/c#/Digital-Diary-main/obj/Debug/net10.0/Diary with file.AssemblyInfo.cs
+/home/ilias/Desktop/c#/Digital-Diary-main/obj/Debug/net10.0/Diary with file.csproj.CoreCompileInputs.cache
+/home/ilias/Desktop/c#/Digital-Diary-main/obj/Debug/net10.0/Diary with file.sourcelink.json
+/home/ilias/Desktop/c#/Digital-Diary-main/obj/Debug/net10.0/Diary with file.dll
+/home/ilias/Desktop/c#/Digital-Diary-main/obj/Debug/net10.0/refint/Diary with file.dll
+/home/ilias/Desktop/c#/Digital-Diary-main/obj/Debug/net10.0/Diary with file.pdb
+/home/ilias/Desktop/c#/Digital-Diary-main/obj/Debug/net10.0/Diary with file.genruntimeconfig.cache
+/home/ilias/Desktop/c#/Digital-Diary-main/obj/Debug/net10.0/ref/Diary with file.dll
