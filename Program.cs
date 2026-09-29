@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 
 class Program
 {
@@ -103,7 +104,8 @@ class Program
             Console.WriteLine("3. Search entries by keyword");
             Console.WriteLine("4. Delete an entry");
             Console.WriteLine("5. View Statistics");
-            Console.WriteLine("6. Exit");
+            Console.WriteLine("6. ExportEntries(fileName);");
+            Console.WriteLine("7. Exit ");
             Console.Write("\nChoose an option: ");
 
             // Read user choice; use null-coalescing operator (?? "") to prevent null references
@@ -128,6 +130,9 @@ class Program
                     ShowStatistics(fileName);
                     break;
                 case "6":
+                    ExportEntries(fileName);
+                    break;
+                case "7":
                     keepRunning = false; // Set flag to false to break loop and end program
                     Console.WriteLine("Goodbye! Have a great day.");
                     System.Threading.Thread.Sleep(1000);
@@ -399,4 +404,115 @@ class Program
         Console.WriteLine(line);
         Console.ResetColor(); // Always reset color back to default
     }
-}
+    static void ExportEntries(string file)
+        {
+            Console.Clear();
+            Console.WriteLine("--- 📦 EXPORT / BACKUP DIARY ---");
+
+            // Guard clause: ensure source file exists
+            if (!File.Exists(file))
+            {
+                Console.WriteLine("No diary file found to export.");
+                Console.ReadKey();
+                return;
+            }
+
+            string[] encryptedLines = File.ReadAllLines(file);
+            if (encryptedLines.Length == 0)
+            {
+                Console.WriteLine("Diary is empty. Nothing to export.");
+                Console.ReadKey();
+                return;
+            }
+
+            // 1. Decrypt and parse raw line strings into structured strongly-typed C# objects
+            List<DiaryEntry> entriesList = new List<DiaryEntry>();
+
+            foreach (var encLine in encryptedLines)
+            {
+                string line = Decrypt(encLine, 5); // Decrypt using shift key = 5
+
+                // Parse formatted string: "[29/09/2026 21:30] | Mood: 5 | Entry content here"
+                try
+                {
+                    var parts = line.Split(" | ");
+                    if (parts.Length >= 3)
+                    {
+                        string date = parts[0].Trim('[', ']');
+                        int mood = int.Parse(parts[1].Replace("Mood: ", "").Trim());
+                        string content = string.Join(" | ", parts.Skip(2)); // Rejoin if content string contained '|'
+
+                        entriesList.Add(new DiaryEntry
+                        {
+                            Date = date,
+                            Mood = mood,
+                            Content = content
+                        });
+                    }
+                }
+                catch
+                {
+                    // Skip line if parsing fails due to corrupted data
+                    continue;
+                }
+            }
+
+            // 2. Format selection menu for backup destination
+            Console.WriteLine("\nChoose Export Format:");
+            Console.WriteLine("1. Export as CSV (diary_backup.csv)");
+            Console.WriteLine("2. Export as JSON (diary_backup.json)");
+            Console.Write("\nChoice: ");
+            string choice = Console.ReadLine() ?? "";
+
+            if (choice == "1")
+            {
+                // Export data to CSV format
+                string csvPath = "diary_backup.csv";
+                List<string> csvLines = new List<string> { "Date,Mood,Content" }; // Header row
+
+                foreach (var entry in entriesList)
+                {
+                    // Escape inner double quotes to preserve valid CSV structure
+                    string safeContent = $"\"{entry.Content.Replace("\"", "\"\"")}\"";
+                    csvLines.Add($"{entry.Date},{entry.Mood},{safeContent}");
+                }
+
+                File.WriteAllLines(csvPath, csvLines);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"\n✅ Successfully exported {entriesList.Count} entries to '{csvPath}'!");
+                Console.ResetColor();
+            }
+            else if (choice == "2")
+            {
+                // Export data to JSON format using System.Text.Json
+                string jsonPath = "diary_backup.json";
+                
+                // Format output JSON with clean indentation (Pretty Printing)
+                var options = new JsonSerializerOptions { WriteIndented = true };
+                string jsonString = JsonSerializer.Serialize(entriesList, options);
+
+                File.WriteAllText(jsonPath, jsonString);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"\n✅ Successfully exported {entriesList.Count} entries to '{jsonPath}'!");
+                Console.ResetColor();
+            }
+            else
+            {
+                Console.WriteLine("Invalid export format selection.");
+            }
+
+            Console.WriteLine("\nPress any key to return...");
+            Console.ReadKey();
+        }
+    }
+
+    // ===================================================
+    // DATA MODEL CLASS
+    // ===================================================
+    // Strongly-typed data model used for object mapping and JSON/CSV serialization during backup
+    class DiaryEntry
+    {
+        public string Date { get; set; } = "";
+        public int Mood { get; set; }
+        public string Content { get; set; } = "";
+    }
